@@ -1,0 +1,33 @@
+apiVersion: skaffold/v2beta26
+kind: Config
+build:
+  artifacts:
+    - image: test-api
+      docker:
+        dockerfile: deploy/Dockerfile
+  local:
+    push: true
+    concurrency: 1
+deploy:
+  helm:
+    flags:
+      upgrade: ["--timeout", "15m"]
+      install: ["--timeout", "15m"]
+    releases:
+      - name: test1
+        chartPath: deploy/helm/test-api
+        namespace: test-api
+        createNamespace: true
+        wait: true
+        setValueTemplates:
+          image.repository: "{{.IMAGE_REPO_test_api}}"
+          image.tag: "{{.IMAGE_TAG_test_api}}@{{.IMAGE_DIGEST_test_api}}"
+        setValues:
+          image.pullPolicy: IfNotPresent
+          service.type: ClusterIP
+portForward:
+  - resourceType: deployment
+    resourceName: test1-test-api
+    namespace: test-api
+    port: 80
+    localPort: 8080
