@@ -8,13 +8,10 @@ import (
 	"os"
 
 	"github.com/jackc/pgx/v5"
-	//_ "github.com/lib/pq"
-	//"github.com/stephenafamo/bob"
 
 	"github.com/stephenafamo/bob/dialect/psql"
-	"github.com/stephenafamo/bob/dialect/psql/sm"
-
 	"github.com/stephenafamo/bob/dialect/psql/im"
+	"github.com/stephenafamo/bob/dialect/psql/sm"
 	"github.com/stephenafamo/bob/dialect/psql/um"
 )
 
