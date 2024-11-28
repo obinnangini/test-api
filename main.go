@@ -1,49 +1,48 @@
 package main
 
 import (
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/render"
+	"context"
+	"fmt"
 	"net/http"
 	"ngini.com/test-api/internal/api"
-
-	"github.com/go-chi/chi/v5/middleware"
+	"ngini.com/test-api/internal/dao"
+	"os"
+	"strconv"
 )
 
 func main() {
-	r := chi.NewRouter()
-	r.Use(middleware.RequestID)
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-	r.Use(middleware.URLFormat)
-	r.Use(render.SetContentType(render.ContentTypeJSON))
+	var portNum int
+	var err error
+	var db dao.DAO
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("root."))
-	})
+	apiPort := os.Getenv("API_PORT")
+	if len(apiPort) == 0 {
+		panic("API_PORT environment variable not set")
+	}
+	portNum, err = strconv.Atoi(apiPort)
+	if err != nil {
+		panic(err)
+	}
 
-	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("pong"))
-	})
+	db = dao.NewMemoryDAO()
+	dbUrl := os.Getenv("DATABASE_URL")
+	if len(dbUrl) > 0 {
+		db = setupDB(context.Background(), dbUrl)
+	}
+	r := api.SetUpRouter(db)
 
-	r.Get("/panic", func(w http.ResponseWriter, r *http.Request) {
-		panic("test")
-	})
+	address := fmt.Sprintf(":%d", portNum)
+	err = http.ListenAndServe(address, r)
+	if err != nil {
+		panic(err)
+	}
+}
 
-	r.Route("/orders", func(r chi.Router) {
-		r.With(api.Paginate).Get("/", api.ListOrders)
-		r.Post("/", api.CreateOrder) // POST /orders
-		//r.Get("/search", SearchArticles) // GET /orders/search
-
-		r.Route("/{orderID}", func(r chi.Router) {
-			r.Use(api.OrderCtx)            // Load the *Order on the request context
-			r.Get("/", api.GetOrder)       // GET /orders/123
-			r.Put("/", api.UpdateOrder)    // PUT /orders/123
-			r.Delete("/", api.DeleteOrder) // DELETE /orders/123
-		})
-
-		// GET /articles/whats-up
-		r.With(api.OrderCtx).Get("/{orderSlug:[a-z-]+}", api.GetOrder)
-	})
-
-	http.ListenAndServe(":80", r)
+func setupDB(ctx context.Context, dbUrl string) *dao.DBDAO {
+	dbDAO := dao.NewDBDAO()
+	err := dbDAO.InitConnection(ctx, dbUrl)
+	if err != nil {
+		panic(err)
+	}
+	return dbDAO
 }

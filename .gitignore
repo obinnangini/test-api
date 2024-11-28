@@ -2,3 +2,4 @@
 vendor
 status
 grpc_main.go
+.compose-data

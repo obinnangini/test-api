@@ -1,6 +1,6 @@
 
 
-FROM golang:1.22
+FROM golang:1.23
 LABEL authors="obinn"
 WORKDIR /build
 COPY ../go.mod go.sum ./

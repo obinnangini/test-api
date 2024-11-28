@@ -39,6 +39,19 @@ Doc loosely used: https://crypto-gopher.medium.com/the-complete-guide-to-deployi
 
 ## Execution
 ### Local 
+#### Docker Compose
+1. Start Docker Desktop.
+1. Run the make target to start the app via docker compsose
+    ```
+   make compose-up
+   ```
+1. In a different window curl `http://localhost:80` to confirm the api is available
+    ```
+   > curl localhost:80
+    root.
+   ```
+
+#### Skaffold
 1. Start Docker Desktop. 
 1. Start minikube
     ```
