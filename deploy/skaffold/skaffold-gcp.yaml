@@ -25,3 +25,4 @@ deploy:
         setValues:
           image.pullPolicy: IfNotPresent
           service.type: LoadBalancer
+          service.port: 8080

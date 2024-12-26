@@ -8,6 +8,16 @@ import (
 	"ngini.com/test-api/internal/dao"
 	"os"
 	"strconv"
+
+	"go.uber.org/zap"
+)
+
+type DBStructure string
+
+const (
+	UseMemoryMap  DBStructure = "map"
+	UseMemoryList DBStructure = "list"
+	UseDB         DBStructure = "db"
 )
 
 func main() {
@@ -15,6 +25,7 @@ func main() {
 	var err error
 	var db dao.DAO
 
+	logger, _ := zap.NewProduction()
 	apiPort := os.Getenv("API_PORT")
 	if len(apiPort) == 0 {
 		panic("API_PORT environment variable not set")
@@ -24,11 +35,26 @@ func main() {
 		panic(err)
 	}
 
-	db = dao.NewMemoryDAO()
+	dBStructure := UseMemoryMap
 	dbUrl := os.Getenv("DATABASE_URL")
 	if len(dbUrl) > 0 {
-		db = setupDB(context.Background(), dbUrl)
+		dBStructure = UseDB
 	}
+
+	switch dBStructure {
+	case UseMemoryMap:
+		db = dao.NewMemoryMapDAO()
+	case UseDB:
+		db = setupDB(context.Background(), dbUrl)
+	case UseMemoryList:
+		db = dao.NewMemoryListDAO()
+	default:
+		db = dao.NewMemoryListDAO()
+	}
+
+	logger.Info("Chosen DB Structure", zap.String("dBStructure", string(dBStructure)))
+	//dbStructureString := fmt.Sprintf("Chosen DB structure: %v", dBStructure)
+	//fmt.Println(dbStructureString)
 	r := api.SetUpRouter(db)
 
 	address := fmt.Sprintf(":%d", portNum)

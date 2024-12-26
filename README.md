@@ -5,6 +5,17 @@ Currently, it is configured to deploy to Minikube and GKE
 
 Doc loosely used: https://crypto-gopher.medium.com/the-complete-guide-to-deploying-a-golang-application-to-kubernetes-ecd85a46c565
 
+## Next Steps
+1. Add Unit Testing for endpoints, service layer and DAO
+1. Implement pagination using a limit based on timestamp
+1. Add DB + migrate job to K8s deployment/GCP
+1. Add DB indexing on searched fields like `slug`
+1. GRPC API
+1. Add Redis for caching results
+1. On creation of an order, send an event via messaging systems to process order
+1. Handle order processing message
+1. Validate order name on add
+
 ## Setup (For Windows)
 1. Install docker desktop: https://docs.docker.com/desktop/setup/install/windows-install/
 1. Install Chocolatey: https://chocolatey.org/install
@@ -45,9 +56,9 @@ Doc loosely used: https://crypto-gopher.medium.com/the-complete-guide-to-deployi
     ```
    make compose-up
    ```
-1. In a different window curl `http://localhost:80` to confirm the api is available
+1. In a different window curl `http://localhost:8080` to confirm the api is available
     ```
-   > curl localhost:80
+   > curl localhost:8080
     root.
    ```
 
@@ -66,7 +77,7 @@ Doc loosely used: https://crypto-gopher.medium.com/the-complete-guide-to-deployi
     ```
    make deploy-local
    ```
-   The deploy deploys the API to a local minikube cluster, and port forwards port `80` from the deployment to `localhost:8080`
+   The deploy deploys the API to a local minikube cluster, and port forwards port `8080` from the deployment to `localhost:8080`
    After the deploy is complete, in a different window you can switch to the namespace and confirm a pod is running
     ```
    kubectl config set-context --current --namespace=test-api
@@ -129,12 +140,12 @@ Doc loosely used: https://crypto-gopher.medium.com/the-complete-guide-to-deployi
     ```
     kubectl get services
     NAME             TYPE           CLUSTER-IP       EXTERNAL-IP      PORT(S)        AGE
-    test1-test-api   LoadBalancer   34.118.233.234   35.188.223.166   80:31784/TCP   92s
+    test1-test-api   LoadBalancer   34.118.233.234   35.188.223.166   8080:31784/TCP   92s
     
     ```
-1. curl `http://<EXTERNALIP>:80` to confirm the api is available
+1. curl `http://<EXTERNALIP>:8080` to confirm the api is available
     ```
-    curl http://35.188.223.166:80
+    curl http://35.188.223.166:8080
     StatusCode        : 200
     StatusDescription : OK
     Content           : welcome

@@ -25,9 +25,10 @@ deploy:
         setValues:
           image.pullPolicy: IfNotPresent
           service.type: ClusterIP
+          service.port: 8080
 portForward:
   - resourceType: deployment
     resourceName: test1-test-api
     namespace: test-api
-    port: 80
+    port: 8080
     localPort: 8080

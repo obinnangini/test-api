@@ -6,7 +6,7 @@ import (
 	"ngini.com/test-api/internal/model"
 )
 
-type MemoryDAO struct {
+type MemoryListDAO struct {
 	dbList []*model.Order
 }
 
@@ -16,21 +16,35 @@ var orderMemoryDB = []*model.Order{
 	{ID: "3", Name: "Watch", Slug: "timey-wimey"},
 }
 
-func NewMemoryDAO() *MemoryDAO {
-	return &MemoryDAO{
-		dbList: orderMemoryDB,
+func NewMemoryListDAO() *MemoryListDAO {
+
+	list2 := []*model.Order{}
+
+	for _, obj := range orderMemoryDB {
+		list2 = append(list2, obj)
 	}
+	memoryListDao := MemoryListDAO{
+		dbList: list2,
+	}
+	return &memoryListDao
 }
 
-//func NewDBDAO() *DBDAO {
-//	return &DBDAO{}
+//func (m *MemoryListDAO) GetOrder(ctx context.Context, orderID string) (*model.Order, error) {
+//	switch m.memoryStructure {
+//	case UseMap:
+//		return m.getOrderFromMap(m.dbMap, orderID)
+//	case UseList:
+//		return m.getOrderFromList(m.dbList, orderID)
+//	default:
+//		return m.getOrderFromList(m.dbList, orderID)
+//	}
 //}
 
-func (m *MemoryDAO) GetOrders(ctx context.Context) ([]*model.Order, error) {
+func (m *MemoryListDAO) GetOrders(ctx context.Context) ([]*model.Order, error) {
 	return m.dbList, nil
 }
 
-func (m *MemoryDAO) GetOrder(ctx context.Context, orderID string) (*model.Order, error) {
+func (m *MemoryListDAO) GetOrder(ctx context.Context, orderID string) (*model.Order, error) {
 	for _, order := range m.dbList {
 		if order.ID == orderID {
 			return order, nil
@@ -39,7 +53,7 @@ func (m *MemoryDAO) GetOrder(ctx context.Context, orderID string) (*model.Order,
 	return nil, errors.New("order not found")
 }
 
-func (m *MemoryDAO) AddOrder(ctx context.Context, order model.Order) (*model.Order, error) {
+func (m *MemoryListDAO) AddOrder(ctx context.Context, order model.Order) (*model.Order, error) {
 	if len(order.Name) == 0 {
 		return nil, errors.New("name is required")
 	}
@@ -52,7 +66,7 @@ func (m *MemoryDAO) AddOrder(ctx context.Context, order model.Order) (*model.Ord
 	return &order, nil
 }
 
-func (m *MemoryDAO) UpdateOrder(ctx context.Context, orderID string, order *model.Order) (*model.Order, error) {
+func (m *MemoryListDAO) UpdateOrder(ctx context.Context, orderID string, order model.Order) (*model.Order, error) {
 	if len(order.Name) == 0 {
 		return nil, errors.New("name is required")
 	}
@@ -60,7 +74,7 @@ func (m *MemoryDAO) UpdateOrder(ctx context.Context, orderID string, order *mode
 	if _, err := m.DeleteOrder(ctx, orderID); err != nil {
 		return nil, err
 	} else {
-		m.dbList = append(m.dbList, order)
+		m.dbList = append(m.dbList, &order)
 	}
 
 	//if order, _ := m.GetOrder(orderID); order != nil {
@@ -72,10 +86,10 @@ func (m *MemoryDAO) UpdateOrder(ctx context.Context, orderID string, order *mode
 	//} else {
 	//	return errors.New("order does not exist")
 	//}
-	return order, nil
+	return &order, nil
 }
 
-func (m *MemoryDAO) DeleteOrder(ctx context.Context, orderID string) (*model.Order, error) {
+func (m *MemoryListDAO) DeleteOrder(ctx context.Context, orderID string) (*model.Order, error) {
 	index := len(m.dbList)
 	for i, order := range m.dbList {
 		if order.ID == orderID {
@@ -91,7 +105,7 @@ func (m *MemoryDAO) DeleteOrder(ctx context.Context, orderID string) (*model.Ord
 	}
 }
 
-func (m *MemoryDAO) GetOrderBySlug(ctx context.Context, slug string) (*model.Order, error) {
+func (m *MemoryListDAO) GetOrderBySlug(ctx context.Context, slug string) (*model.Order, error) {
 	for _, order := range m.dbList {
 		if order.Slug == slug {
 			return order, nil

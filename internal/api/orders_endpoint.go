@@ -45,6 +45,7 @@ func (o *OrdersEndpoint) OrderCtx(next http.Handler) http.Handler {
 		var err error
 
 		if orderID := chi.URLParam(r, "orderID"); orderID != "" {
+			orderID = strings.TrimSpace(orderID)
 			order, err = o.dao.GetOrder(ctx, orderID)
 		} else if orderSlug := chi.URLParam(r, "orderSlug"); orderSlug != "" {
 			order, err = o.dao.GetOrderBySlug(ctx, orderSlug)
@@ -115,7 +116,7 @@ func (o *OrdersEndpoint) UpdateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	order = data.Order
-	returnedOrder, err := o.dao.UpdateOrder(ctx, order.ID, order)
+	returnedOrder, err := o.dao.UpdateOrder(ctx, order.ID, *order)
 	if err != nil {
 		_ = render.Render(w, r, ErrInvalidRequest(err))
 		return

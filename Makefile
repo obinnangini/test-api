@@ -19,9 +19,17 @@ clean:
 compose-clean:
 	@rd /s /q deploy\.compose-data
 
+.PHONY: build-test
+build-test:
+	docker build -f deploy/Dockerfile --target run-test-stage --progress=plain --no-cache .
+
 .PHONY: build
 build:
 	docker build -f deploy/Dockerfile -t $(DOCKER_REGISTRY)/$(IMAGE_NAME):$(IMAGE_TAG) .
+
+.PHONY: test
+test:
+	go test -v ./...
 
 .PHONY: compose-up
 compose-up:

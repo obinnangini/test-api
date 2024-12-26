@@ -205,7 +205,7 @@ func (d *DBDAO) AddOrder(ctx context.Context, order model.Order) (*model.Order, 
 
 }
 
-func (d *DBDAO) UpdateOrder(ctx context.Context, orderID string, order *model.Order) (*model.Order, error) {
+func (d *DBDAO) UpdateOrder(ctx context.Context, orderID string, order model.Order) (*model.Order, error) {
 	var err error
 	var queryString string
 	var args []interface{}
